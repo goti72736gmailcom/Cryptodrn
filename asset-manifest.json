@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.3e81d70d.css",
+    "main.js": "/static/js/main.843a6f22.js",
+    "static/js/453.42bf1cbe.chunk.js": "/static/js/453.42bf1cbe.chunk.js",
+    "static/media/bnbchain.png": "/static/media/bnbchain.4b6b39c3c8c99b400166.png",
+    "index.html": "/index.html",
+    "main.3e81d70d.css.map": "/static/css/main.3e81d70d.css.map",
+    "main.843a6f22.js.map": "/static/js/main.843a6f22.js.map",
+    "453.42bf1cbe.chunk.js.map": "/static/js/453.42bf1cbe.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3e81d70d.css",
+    "static/js/main.843a6f22.js"
+  ]
+}

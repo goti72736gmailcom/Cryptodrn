@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet UI Showcase</title>
+    <!-- Using a common icon library for symbols -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Using Google Fonts for a similar font style -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Original Dark Theme Variables */
+            --bg-primary: #1E1E1E;
+            --bg-secondary: #2C2C2C;
+            --bg-tertiary: #121212;
+            --text-primary: #EAEAEA;
+            --text-secondary: #8E8E8E;
+            --accent-green: #33D179;
+            --accent-green-dark: #29a862;
+            --accent-red: #ff4d4d;
+            --border-color: #3A3A3A;
+            --warning-bg: #3a3224;
+            --warning-text: #f3ba2f;
+
+            /* New Light Theme Variables from Image */
+            --light-bg: #FFFFFF;
+            --light-text-primary: #000000;
+            --light-text-secondary: #6B7280; /* A guess for grey text */
+            --light-accent-blue: #007AFF; /* Standard blue for buttons */
+            --light-accent-green: #10B981; /* Green for discount */
+            --light-border: #F3F4F6; /* Light grey for borders */
+            --light-app-bg: #F9FAFB; /* Overall background grey */
+        }
+
+        /* General Body Styles */
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Animation Keyframes */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        @keyframes slideInFromTop {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% {
+                transform: translate3d(0,0,0);
+            }
+            40%, 43% {
+                transform: translate3d(0, -8px, 0);
+            }
+            70% {
+                transform: translate3d(0, -4px, 0);
+            }
+            90% {
+                transform: translate3d(0, -2px, 0);
+            }
+        }
+        
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+        }
+        
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes checkmarkDraw {
+            0% {
+                stroke-dashoffset: 100;
+            }
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        /* Full Screen Wallet Container */
+        .wallet-container {
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Common Window Header */
+        .window-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .window-header span {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .window-header .close-btn {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .screen {
+            padding: 0;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            background-color: var(--bg-primary); /* Default screen background */
+        }
+        
+        .screen-header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            padding: 30px 60px;
+            position: sticky;
+            top: 0;
+            background-color: var(--bg-primary);
+            z-index: 10;
+        }
+        
+        .back-btn {
+             font-size: 24px;
+             font-weight: 300;
+             cursor: pointer;
+        }
+        
+        .screen-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        /* --- Screen 1: Send BNB (Main Screen) --- */
+        #send-bnb-screen {
+            gap: 20px;
+        }
+        .main-content {
+            padding: 40px 60px 0 60px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        /* Mobile Grid Layouts */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px 20px 0 20px;
+                gap: 20px;
+            }
+            
+            .account-details h1 {
+                font-size: 48px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .main-actions {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+                padding: 0 20px;
+            }
+            
+            .action-btn {
+                padding: 15px;
+            }
+            
+            .action-btn .icon-wrapper {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+            
+            .tabs {
+                padding: 0 20px;
+                justify-content: center;
+            }
+            
+            .tab {
+                padding: 12px 16px;
+                margin: 0 5px;
+                font-size: 14px;
+            }
+            
+            .token-list-container {
+                padding: 0 20px;
+            }
+            
+            .token-item {
+                padding: 12px 8px;
+            }
+            
+            .token-item-info {
+                gap: 10px;
+            }
+            
+            .token-icon {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .token-details h3 {
+                font-size: 14px;
+            }
+            
+            .token-details p {
+                font-size: 12px;
+            }
+            
+            .token-balance .amount {
+                font-size: 14px;
+            }
+            
+            .token-balance .value {
+                font-size: 12px;
+            }
+            
+            .footer-nav {
+                padding: 15px 0;
+            }
+            
+            .nav-item {
+                font-size: 11px;
+                gap: 4px;
+            }
+            
+            .nav-item i {
+                font-size: 18px;
+            }
+            
+            .screen-header {
+                padding: 20px 20px;
+                gap: 20px;
+            }
+            
+            .screen-header h2 {
+                font-size: 18px;
+            }
+            
+            #send-bnb-screen .content {
+                padding: 0 20px 20px 20px;
+            }
+            
+            .search-bar-wrapper {
+                margin-bottom: 15px;
+            }
+            
+            .network-filter {
+                margin-bottom: 10px;
+            }
+            
+            .form-group label {
+                font-size: 13px;
+                margin-bottom: 8px;
+            }
+            
+            .input-wrapper {
+                padding: 12px;
+            }
+            
+            .input-wrapper input {
+                font-size: 14px;
+            }
+            
+            .preview-btn {
+                padding: 16px;
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 15px 15px 0 15px;
+                gap: 15px;
+            }
+            
+            .account-details h1 {
+                font-size: 36px;
+            }
+            
+            .main-actions {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                padding: 0 10px;
+            }
+            
+            .action-btn .icon-wrapper {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            .action-btn span {
+                font-size: 12px;
+            }
+            
+            .warning-banner {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+            
+            .tabs {
+                padding: 0 15px;
+            }
+            
+            .tab {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+            
+            .token-list-container {
+                padding: 0 15px;
+            }
+            
+            .token-item {
+                padding: 10px 6px;
+            }
+            
+            .token-icon {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .token-details h3 {
+                font-size: 13px;
+            }
+            
+            .token-details h3 .chain-tag {
+                font-size: 10px;
+                padding: 2px 6px;
+            }
+            
+            .token-details p {
+                font-size: 11px;
+            }
+            
+            .token-balance .amount {
+                font-size: 13px;
+            }
+            
+            .token-balance .value {
+                font-size: 11px;
+            }
+            
+            .footer-nav {
+                padding: 12px 0;
+            }
+            
+            .nav-item {
+                font-size: 10px;
+                padding: 8px 12px;
+            }
+            
+            .nav-item i {
+                font-size: 16px;
+            }
+            
+            .screen-header {
+                padding: 15px 15px;
+            }
+            
+            .screen-header h2 {
+                font-size: 16px;
+            }
+            
+            #send-bnb-screen .content {
+                padding: 0 15px 15px 15px;
+            }
+            
+            .search-bar-wrapper {
+                padding: 8px 12px;
+            }
+            
+            .search-bar-wrapper input {
+                font-size: 13px;
+            }
+            
+            .network-filter {
+                padding: 6px 10px;
+            }
+            
+            .network-filter span {
+                font-size: 13px;
+            }
+            
+            .form-group label {
+                font-size: 12px;
+            }
+            
+            .input-wrapper {
+                padding: 10px;
+            }
+            
+            .input-wrapper input {
+                font-size: 13px;
+            }
+            
+            .preview-btn {
+                padding: 14px;
+                font-size: 15px;
+            }
+        }
+        .warning-banner {
+            background-color: var(--warning-bg);
+            color: var(--warning-text);
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .warning-banner:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(243, 186, 47, 0.3);
+        }
+        .warning-banner i { margin-right: 10px; }
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .account-name { font-weight: 600; cursor: pointer; }
+        .account-name i { font-size: 12px; margin-left: 5px; }
+        .header-icons { display: flex; align-items: center; gap: 15px; }
+        .header-icons i { font-size: 18px; cursor: pointer; color: var(--text-secondary); }
+        .header-icons .youtube-icon { color: var(--accent-red); font-size: 20px; background-color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+        .header-icons .youtube-icon i { color: var(--accent-red); font-size: 14px;}
+        .account-details { 
+            text-align: left; 
+            margin-top: -10px;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+        .account-details p { 
+            margin: 0; 
+            color: var(--text-secondary); 
+            font-size: 14px;
+            animation: fadeInLeft 0.6s ease-out 0.4s both;
+        }
+        .account-details h1 { 
+            font-size: 64px; 
+            margin: 5px 0; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            gap: 20px;
+            animation: scaleIn 0.8s ease-out 0.6s both;
+        }
+        .account-details h1 i { font-size: 16px; color: var(--text-secondary); font-weight: normal; cursor: pointer; }
+        .main-actions { display: flex; justify-content: space-around; text-align: center; }
+        .action-btn { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 12px; 
+            cursor: pointer; 
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .action-btn:nth-child(1) { animation-delay: 0.1s; }
+        .action-btn:nth-child(2) { animation-delay: 0.2s; }
+        .action-btn:nth-child(3) { animation-delay: 0.3s; }
+        .action-btn:nth-child(4) { animation-delay: 0.4s; }
+        
+        .action-btn:hover {
+            transform: translateY(-8px);
+        }
+        
+        .action-btn .icon-wrapper { 
+            background-color: var(--bg-secondary); 
+            width: 80px; 
+            height: 80px; 
+            border-radius: 50%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 32px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .action-btn:hover .icon-wrapper {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(51, 209, 121, 0.3);
+            background-color: var(--accent-green);
+        }
+        
+        .action-btn span { 
+            font-weight: 500; 
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+        
+        .action-btn:hover span {
+            color: var(--accent-green);
+        }
+        .tabs { 
+            display: flex; 
+            border-bottom: 1px solid var(--border-color); 
+            margin-bottom: 20px; 
+            padding: 0 60px;
+            animation: slideInFromTop 0.6s ease-out 0.8s both;
+        }
+        .tab { 
+            padding: 15px 20px; 
+            margin: 0 10px; 
+            cursor: pointer; 
+            color: var(--text-secondary); 
+            font-weight: 600; 
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .tab:first-child { margin-left: 0; }
+        .tab:hover {
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+        .tab.active { 
+            color: var(--text-primary);
+            animation: pulse 2s infinite;
+        }
+        .tab.active::after { 
+            content: ''; 
+            position: absolute; 
+            bottom: -1px; 
+            left: 0; 
+            right: 0; 
+            height: 2px; 
+            background-color: var(--accent-green);
+            animation: fadeInUp 0.4s ease-out;
+        }
+        .token-list-container { 
+            padding: 0 60px;
+            animation: fadeInUp 0.6s ease-out 1s both;
+        }
+        .token-list { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 5px; 
+        }
+        .token-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 15px 10px; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            transition: all 0.3s ease;
+            animation: fadeInRight 0.6s ease-out;
+        }
+        
+        .token-item:nth-child(1) { animation-delay: 1.1s; }
+        .token-item:nth-child(2) { animation-delay: 1.2s; }
+        
+        .token-item:hover { 
+            background-color: var(--bg-secondary);
+            transform: translateX(10px);
+            box-shadow: 0 4px 15px rgba(51, 209, 121, 0.2);
+        }
+        .token-item-info { display: flex; align-items: center; gap: 15px; }
+        .token-icon { 
+            width: 42px; 
+            height: 42px; 
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .token-item:hover .token-icon {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .token-icon img { width: 100%; height: 100%; border-radius: 50%; }
+        .token-details h3 { margin: 0 0 4px 0; font-size: 16px; font-weight: 500; }
+        .token-details h3 .chain-tag { background-color: var(--bg-secondary); color: var(--text-secondary); padding: 3px 8px; border-radius: 6px; font-size: 12px; margin-left: 8px; font-weight: 400; }
+        .token-details p { margin: 0; color: var(--text-secondary); font-size: 14px; }
+        .token-details .price-change { color: var(--accent-green); }
+        .token-balance { text-align: right; }
+        .token-balance .amount { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+        .token-balance .value { color: var(--text-secondary); font-size: 14px; }
+        .manage-crypto-link { 
+            text-align: center; 
+            color: var(--accent-green); 
+            font-weight: 600; 
+            cursor: pointer; 
+            margin-top: 15px; 
+            padding-bottom: 20px;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out 1.3s both;
+        }
+        
+        .manage-crypto-link:hover {
+            transform: scale(1.05);
+            text-shadow: 0 0 10px rgba(51, 209, 121, 0.5);
+        }
+        .footer-nav { display: flex; justify-content: space-around; padding: 10px 0; background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); margin-top: auto; flex-shrink: 0; }
+        .nav-item { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 6px; 
+            color: var(--text-secondary); 
+            font-size: 12px; 
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out 1.4s both;
+        }
+        
+        .nav-item:nth-child(1) { animation-delay: 1.4s; }
+        .nav-item:nth-child(2) { animation-delay: 1.5s; }
+        .nav-item:nth-child(3) { animation-delay: 1.6s; }
+        .nav-item:nth-child(4) { animation-delay: 1.7s; }
+        
+        .nav-item:hover {
+            color: var(--text-primary);
+            transform: translateY(-3px);
+        }
+        
+        .nav-item.active { 
+            color: var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+        .nav-item i { 
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-item:hover i {
+            transform: scale(1.2);
+        }
+        
+        /* --- Screen 1: Send BNB --- */
+        #send-bnb-screen .content {
+            padding: 0 60px 30px 60px;
+        }
+        .search-bar-wrapper {
+            background-color: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out 0.3s both;
+        }
+        
+        .search-bar-wrapper:focus-within {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(51, 209, 121, 0.2);
+        }
+        .search-bar-wrapper i { color: var(--text-secondary); }
+        .search-bar-wrapper input {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 14px;
+            width: 100%;
+        }
+        .search-bar-wrapper input:focus { outline: none; }
+        .network-filter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            width: fit-content; /* Make it not stretch */
+            transition: all 0.3s ease;
+            animation: fadeInLeft 0.6s ease-out 0.5s both;
+        }
+        
+        .network-filter:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(51, 209, 121, 0.2);
+        }
+        .network-filter img { width: 24px; height: 24px; }
+        .network-filter span { font-weight: 500; }
+        .network-filter i { font-size: 12px; color: var(--text-secondary); }
+
+        /* --- Screen 1: Send BNB --- */
+        #send-bnb-screen {
+            padding: 0 60px 30px 60px;
+        }
+        #send-bnb-screen .network-info {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        #send-bnb-screen .network-info .token-icon { width: 42px; height: 42px; }
+        #send-bnb-screen form {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            flex-grow: 1;
+        }
+        .form-group { position: relative; }
+        .form-group label {
+            display: block;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .input-wrapper {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .input-wrapper:nth-child(1) { animation-delay: 0.3s; }
+        .input-wrapper:nth-child(2) { animation-delay: 0.4s; }
+        .input-wrapper:focus-within, .input-wrapper.active {
+            border-color: var(--accent-green);
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(51, 209, 121, 0.2);
+        }
+        .input-wrapper input {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 16px;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+        .input-wrapper input::placeholder { color: var(--text-secondary); }
+        .input-wrapper input:focus { outline: none; }
+        .paste-btn, .max-btn {
+            background: none;
+            border: none;
+            color: var(--accent-green);
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .paste-btn i { font-size: 18px; }
+        .balance-info {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 10px;
+            padding-left: 5px;
+        }
+        .preview-btn {
+            background-color: var(--accent-green-dark);
+            color: var(--bg-tertiary);
+            border: none;
+            padding: 18px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: not-allowed;
+            margin-top: auto;
+            margin-bottom: 20px;
+            opacity: 0.5;
+            text-align: center;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out 0.8s both;
+        }
+
+        .preview-btn.active {
+            background-color: var(--accent-green);
+            color: white;
+            opacity: 1;
+            cursor: pointer;
+            animation: pulse 2s infinite;
+        }
+        
+        .preview-btn.active:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(51, 209, 121, 0.4);
+        }
+        
+        /* --- New Container and Styles for the Light Theme Transfer Screen --- */
+        .light-wallet-container {
+            width: 600px;
+            height: 500px;
+            background-color: var(--light-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            font-family: 'Inter', sans-serif;
+            flex-shrink: 0;
+            color: var(--light-text-primary); /* Set default text color for this container */
+        }
+        
+        /* Mobile Responsive for Transfer Modal */
+        @media (max-width: 768px) {
+            .light-wallet-container {
+                width: 95%;
+                height: auto;
+                min-height: 400px;
+                padding: 15px;
+                margin: 20px;
+            }
+            
+            .transfer-content {
+                padding: 12px;
+            }
+            
+            .amount-display {
+                margin: 30px 0;
+            }
+            
+            .amount-display .USD-amount {
+                font-size: 28px;
+            }
+            
+            .amount-display .inr-equivalent {
+                font-size: 14px;
+            }
+            
+            .details-box {
+                padding: 6px 12px;
+            }
+            
+            .detail-row {
+                padding: 12px 0;
+            }
+            
+            .detail-row .label,
+            .detail-row .value {
+                font-size: 14px;
+            }
+            
+            .total-section {
+                padding: 20px 12px;
+            }
+            
+            .total-section .label,
+            .total-section .value {
+                font-size: 16px;
+            }
+            
+            .confirm-button {
+                padding: 14px;
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .light-wallet-container {
+                width: 98%;
+                min-height: 350px;
+                padding: 12px;
+                margin: 10px;
+            }
+            
+            .transfer-content {
+                padding: 10px;
+            }
+            
+            .amount-display {
+                margin: 25px 0;
+            }
+            
+            .amount-display .USD-amount {
+                font-size: 24px;
+            }
+            
+            .amount-display .inr-equivalent {
+                font-size: 13px;
+            }
+            
+            .details-box {
+                padding: 5px 10px;
+            }
+            
+            .detail-row {
+                padding: 10px 0;
+            }
+            
+            .detail-row .label,
+            .detail-row .value {
+                font-size: 13px;
+            }
+            
+            .total-section {
+                padding: 15px 10px;
+            }
+            
+            .total-section .label,
+            .total-section .value {
+                font-size: 15px;
+            }
+            
+            .confirm-button {
+                padding: 12px;
+                font-size: 15px;
+            }
+            
+            .light-wallet-header .title {
+                font-size: 16px;
+            }
+            
+            .light-wallet-header .close-icon {
+                font-size: 20px;
+            }
+        }
+
+        .light-wallet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 4px;
+        }
+
+        .light-wallet-header .close-icon {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--light-text-secondary);
+            cursor: pointer;
+        }
+        
+        .light-wallet-header .title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--light-text-primary);
+        }
+        
+        .transfer-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+        
+        .amount-display {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .amount-display .USD-amount {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--light-text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .amount-display .inr-equivalent {
+            font-size: 16px;
+            color: var(--light-text-secondary);
+            margin-top: 8px;
+        }
+        
+        .details-box {
+            background-color: var(--light-app-bg);
+            border-radius: 12px;
+            padding: 8px 16px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--light-border);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-row .label {
+            font-size: 16px;
+            color: var(--light-text-secondary);
+        }
+        
+        .detail-row .value {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--light-text-primary);
+            display: flex;
+            align-items: center;
+            text-align: right;
+        }
+        
+        .detail-row .value.discount {
+            color: var(--light-accent-green);
+            font-weight: 600;
+        }
+        
+        .detail-row .fee-details {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        
+        .detail-row .fee-details .fee-value {
+             font-size: 14px;
+             color: var(--light-text-secondary);
+        }
+        
+        .total-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 16px;
+        }
+        
+        .total-section .label {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--light-text-primary);
+        }
+        
+        .total-section .value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--light-text-primary);
+        }
+
+        .confirm-button {
+            background-color: var(--light-accent-blue);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 100px; /* Pill shape */
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: auto; /* Pushes button to the bottom */
+            transition: all 0.3s ease;
+            animation: scaleIn 0.6s ease-out 0.5s both;
+        }
+        
+        .confirm-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 122, 255, 0.4);
+        }
+        
+        .confirm-button:active {
+            transform: translateY(-1px);
+        }
+
+        /* --- Modal Styles for Preview --- */
+        #preview-modal {
+            position: fixed; /* Sit on top of the page content */
+            display: none; /* Hidden by default */
+            width: 100%; /* Full width (cover the whole page) */
+            height: 100%; /* Full height */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+            z-index: 1000; /* Sit on top */
+            justify-content: center;
+            align-items: center;
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+            animation: fadeInUp 0.4s ease-out;
+        }
+        
+        .light-wallet-container {
+            animation: scaleIn 0.5s ease-out 0.2s both;
+        }
+        
+        /* --- Processing/Transaction Complete Screen --- */
+        .processing-screen {
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 2000;
+            color: #333;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .processing-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            position: relative;
+            animation: scaleIn 0.6s ease-out;
+        }
+        
+        .close-processing-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .close-processing-btn:hover {
+            color: #333;
+            transform: scale(1.1);
+        }
+        
+        .checkmark-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .checkmark-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .checkmark-bg::before {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: 
+                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(0deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 10px 10px;
+            border-radius: 50%;
+        }
+        
+        .checkmark-bg::after {
+            content: '';
+            position: absolute;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 1px, transparent 1px);
+            background-size: 8px 8px;
+            border-radius: 50%;
+        }
+        
+        .checkmark-icon {
+            position: relative;
+            z-index: 2;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #33D179 0%, #29a862 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(51, 209, 121, 0.4);
+            animation: scaleIn 0.8s ease-out 0.3s both;
+        }
+        
+        .checkmark-icon svg {
+            width: 30px;
+            height: 30px;
+            fill: white;
+            stroke: white;
+            stroke-width: 2;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: checkmarkDraw 1s ease-out 0.8s forwards;
+        }
+        
+        .processing-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            animation: fadeInUp 0.6s ease-out 0.5s both;
+        }
+        
+        .processing-description {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 40px;
+            animation: fadeInUp 0.6s ease-out 0.7s both;
+        }
+        
+        .transaction-details-btn {
+            background: linear-gradient(135deg, #007AFF 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            animation: fadeInUp 0.6s ease-out 0.9s both;
+        }
+        
+        .transaction-details-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 122, 255, 0.4);
+        }
+        
+        .transaction-details-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        /* Mobile Responsive for Processing Screen */
+        @media (max-width: 768px) {
+            .processing-modal {
+                padding: 30px 20px;
+                max-width: 90%;
+                margin: 20px;
+            }
+            
+            .checkmark-container {
+                width: 100px;
+                height: 100px;
+                margin-bottom: 25px;
+            }
+            
+            .checkmark-icon {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .checkmark-icon svg {
+                width: 25px;
+                height: 25px;
+            }
+            
+            .processing-title {
+                font-size: 24px;
+                margin-bottom: 12px;
+            }
+            
+            .processing-description {
+                font-size: 14px;
+                margin-bottom: 30px;
+            }
+            
+            .transaction-details-btn {
+                padding: 14px 24px;
+                font-size: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .processing-modal {
+                padding: 25px 15px;
+                max-width: 95%;
+                margin: 10px;
+            }
+            
+            .checkmark-container {
+                width: 80px;
+                height: 80px;
+                margin-bottom: 20px;
+            }
+            
+            .checkmark-icon {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .checkmark-icon svg {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .processing-title {
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+            
+            .processing-description {
+                font-size: 13px;
+                margin-bottom: 25px;
+            }
+            
+            .transaction-details-btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            
+            .close-processing-btn {
+                top: 15px;
+                right: 15px;
+                font-size: 20px;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <!-- Original Dark Theme Wallet -->
+    <div class="wallet-container">
+        <header class="window-header">
+            <span>Trust Wallet</span>
+            <span class="close-btn">X</span>
+        </header>
+
+
+
+
+        
+        <!-- Screen 1: Send BNB (Now the main screen) -->
+        <div id="send-bnb-screen" class="screen">
+            <header class="screen-header">
+                <h2>Send BNB</h2>
+            </header>
+            <div class="network-info">
+                <div class="token-icon"><img src="https://s2.coinmarketcap.com/static/img/coins/64x64/1839.png" alt="BNB"></div>
+                 <p>on BNB Smart Chain Network</p>
+            </div>
+            <form onsubmit="return false;"> <!-- Prevent form submission -->
+                <div class="form-group">
+                    <label for="recipient-address">Recipient Address</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="recipient-address" placeholder="Type or paste a valid address">
+                        <button type="button" class="paste-btn"><i class="fas fa-qrcode"></i></button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount</label>
+                     <div class="input-wrapper">
+                        <input type="text" id="amount" placeholder="Type or paste a valid amount">
+                        <button type="button" class="max-btn">MAX</button>
+                     </div>
+                    <p class="balance-info">Balance: 0 BNB</p>
+                </div>
+                <button type="button" class="preview-btn">Preview</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal container for the preview -->
+    <div id="preview-modal">
+        <!-- Light Theme Transfer Screen Popup -->
+        <div class="light-wallet-container">
+            <header class="light-wallet-header">
+                <span class="close-icon" id="close-preview-btn">×</span>
+                <span class="title">Transfer</span>
+                <span style="width: 18px;"></span> <!-- Spacer -->
+            </header>
+            <main class="transfer-content">
+                <div class="amount-display">
+                    <div class="USD-amount">-122212 USDT</div>
+                    <div class="inr-equivalent">≈ ₹2561869.05</div>
+                </div>
+                <div class="details-box">
+                    <div class="detail-row">
+                        <span class="label">Asset</span>
+                        <span class="value">TRON (USD)</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Wallet</span>
+                        <span class="value">Main Wallet 1<br>TJHLznV...ITpmuh</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">To</span>
+                        <span class="value">121212</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Network fee</span>
+                        <div class="fee-details">
+                            <span class="value discount">100% Discount</span>
+                            <span class="fee-value">0.00 USD (≈₹0.00)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="total-section">
+                    <span class="label">Max Total</span>
+                    <span class="value">₹2561869.05</span>
+                </div>
+                <button class="confirm-button" id="confirm-transaction-btn">Confirm</button>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Processing/Transaction Complete Screen -->
+    <div id="processing-screen" class="processing-screen" style="display: none;">
+        <div class="processing-modal">
+            <button class="close-processing-btn" id="close-processing-btn">×</button>
+            <div class="checkmark-container">
+                <div class="checkmark-bg"></div>
+                <div class="checkmark-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                </div>
+            </div>
+            <h2 class="processing-title">Processing...</h2>
+            <p class="processing-description">Transaction in progress! Blockchain validation is underway. This may take a few minutes.</p>
+            <button class="transaction-details-btn" id="transaction-details-btn">Transaction details</button>
+        </div>
+    </div>
+    
+    <script>
+        // --- Original Navigation Logic ---
+
+        // Get all screens
+        const sendBnbScreen = document.getElementById('send-bnb-screen');
+        
+
+        
+
+
+        // --- New JS for Preview Modal ---
+
+        // Get modal elements
+        const previewModal = document.getElementById('preview-modal');
+        const closePreviewBtn = document.getElementById('close-preview-btn');
+        const previewBtn = document.querySelector('.preview-btn');
+        
+        // Get form elements for enabling the preview button
+        const recipientInput = document.getElementById('recipient-address');
+        const amountInput = document.getElementById('amount');
+
+        // Function to check input fields and toggle preview button state
+        function updatePreviewButtonState() {
+            if (recipientInput.value.trim() !== '' && amountInput.value.trim() !== '') {
+                previewBtn.classList.add('active');
+            } else {
+                previewBtn.classList.remove('active');
+            }
+        }
+
+        // Add event listeners to input fields to check for input
+        recipientInput.addEventListener('input', updatePreviewButtonState);
+        amountInput.addEventListener('input', updatePreviewButtonState);
+
+        // Show the modal when the active preview button is clicked
+        previewBtn.addEventListener('click', () => {
+            // Only show modal if the button has the 'active' class
+            if (previewBtn.classList.contains('active')) {
+                previewModal.style.display = 'flex';
+            }
+        });
+
+        // Hide the modal when the close button is clicked
+        closePreviewBtn.addEventListener('click', () => {
+            previewModal.style.display = 'none';
+        });
+
+        // Hide the modal when clicking on the overlay background
+        previewModal.addEventListener('click', (event) => {
+            // Check if the clicked element is the modal background itself
+            if (event.target === previewModal) {
+                previewModal.style.display = 'none';
+            }
+        });
+
+        // --- Processing Screen Logic ---
+        const processingScreen = document.getElementById('processing-screen');
+        const confirmTransactionBtn = document.getElementById('confirm-transaction-btn');
+        const closeProcessingBtn = document.getElementById('close-processing-btn');
+        const transactionDetailsBtn = document.getElementById('transaction-details-btn');
+
+        // Show processing screen when confirm button is clicked
+        confirmTransactionBtn.addEventListener('click', () => {
+            previewModal.style.display = 'none';
+            setTimeout(() => {
+                processingScreen.style.display = 'flex';
+            }, 300);
+        });
+
+        // Close processing screen
+        closeProcessingBtn.addEventListener('click', () => {
+            processingScreen.style.display = 'none';
+            // Return to main screen
+            sendBnbScreen.style.display = 'flex';
+            sendBnbScreen.style.animation = 'fadeInUp 0.4s ease-out forwards';
+        });
+
+        // Transaction details button (could open a new screen or modal)
+        transactionDetailsBtn.addEventListener('click', () => {
+            // For now, just show an alert. In a real app, this would open transaction details
+            alert('Transaction Details:\n\nHash: 0x1234...5678\nStatus: Processing\nNetwork: BNB Smart Chain\nGas Used: 21,000\nBlock: 12,345,678');
+        });
+
+        // Close processing screen when clicking outside
+        processingScreen.addEventListener('click', (event) => {
+            if (event.target === processingScreen) {
+                processingScreen.style.display = 'none';
+                // Return to main screen
+                sendBnbScreen.style.display = 'flex';
+                sendBnbScreen.style.animation = 'fadeInUp 0.4s ease-out forwards';
+            }
+        });
+
+    </script>
+</body>
+</html>
